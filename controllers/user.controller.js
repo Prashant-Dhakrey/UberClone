@@ -9,7 +9,10 @@ module.exports.registerUser = async (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ error: errors.array() });
   }
-
+      const userExits = await userModel.findOne({email})
+      if(userExits){
+          return res.status(400).json({message: 'user already exist '});
+      }
   const { fullname, email, password } = req.body;
 
   try {
@@ -65,14 +68,14 @@ const loginUser = async (req, res) => {
     // Generate token
     const token = user.generateAuthToken();
 
-    // ✅ Set token in cookie correctly
+    // Set token in cookie correctly
     res.cookie('token', token, {
       httpOnly: true,
       sameSite: 'Strict',
       secure: false,
     });
 
-    // ✅ Send success response
+    // Send success response
     res.status(200).json({ message: "Login successful", user });
     
   } catch (err) {
